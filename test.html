@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>无缝轮播图</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        #window {
+            overflow: hidden;
+            position: relative;
+            width: 500px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        #images img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: transform,.5s;
+        }
+
+        #images img.current {
+            transform:translateX(0);
+            opacity: 1;
+            z-index: 1;
+        }
+        #images>img.rightEnter {
+            transform:translateX(100%);
+        }
+        #images>img.rightLeave {
+            z-index: 0;
+            transform:translateX(-100%);
+        }
+        #images>img.leftEnter {
+            transform: translateX(-100%);
+        }
+        #images>img.leftLeave {
+            transform: translateX(100%);
+        }
+       
+    </style>
+</head>
+<body>
+    <div id="window">
+        <div id="images">
+            <img class="current" src="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3938014365,1092557960&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3081141973,1430264269&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=828325034,2219862162&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=4233373174,3815522421&fm=27&gp=0.jpg" alt="">
+        </div>
+    </div>
+    <div id="btn">
+            <button class="pre"><</button>
+            <button class="next">></button>
+    </div>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>
+        $(function(){
+            let $pre = $('#btn .pre')
+            let $next = $('#btn .next')
+            let $window = $('#window')
+            let timer
+            
+            init()
+
+            $window
+                .on('mouseenter',clearTimer)
+                .on('mouseleave',setTimer)
+
+            $('#btn')
+                .on('mouseenter',clearTimer)
+                .on('mouseleave',setTimer)
+
+            $next.on('click',function(){
+                let $current = $('.current')
+                leave($current,'rightLeave')
+                rightEnter($current)
+            })
+
+            $pre.on('click',function(){
+                let $current = $('.current')
+                leave($current,'leftLeave')
+                leftEnter($current)
+            })
+
+
+
+            
+
+            function leave($current,leaveDir){
+                $current.addClass(leaveDir).removeClass('current')
+                $current.one('transitionend',function(){
+                    $(this).removeClass(leaveDir)
+                })
+                return $current
+            }
+
+            function leftEnter($current){
+                let leftEnter = $current.prev('img')
+                if (leftEnter.length){
+                    leftEnter.addClass('leftEnter').addClass('current').removeClass('leftEnter')
+                }else {
+                    leftEnter = $current.nextAll('img:last')
+                    leftEnter.addClass('leftEnter').removeClass('leftEnter').addClass('current')
+                }
+            }
+
+            function rightEnter($current){
+                let rightEnter = $current.next('img')
+                if (rightEnter.length){
+                    rightEnter.addClass('rightEnter').addClass('current').removeClass('rightEnter')
+                }else {
+                    rightEnter = $current.siblings().eq(0);console.log(rightEnter)
+                    rightEnter.addClass('rightEnter').removeClass('rightEnter').addClass('current')
+                }
+            }
+        
+            function init(){
+                $('images>img:first-child').addClass('current')
+                setTimer()
+            }
+            
+            function setTimer(){
+                timer = setInterval(function(){
+                    $next.trigger('click')
+                },3000)
+            }
+
+            function clearTimer(){
+                clearInterval(timer)
+            }
+        })
+    </script>
+
+</body>
+</html>
