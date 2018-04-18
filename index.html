@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>无缝轮播图</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        #window {
+            overflow: hidden;
+            position: relative;
+            width: 500px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        #window img {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            transition: all,.5s;
+        }
+        #copyImages>img {
+            left: -100%;
+        }
+        #window img.current {
+            left: 0;
+            z-index: 1;
+        }
+        #images>img.enter {
+            left: 100%;
+        }
+        #images>img.leave {
+            z-index: 0;
+            left: -100%;
+        }
+
+        #copyImages>img.preLeave{
+            left: 100%;
+        }
+        #copyImages>img.preEnter{
+            left: -100%
+        }
+       
+    </style>
+</head>
+<body>
+    <div id="window">
+        <div id="images">
+            <img src="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3938014365,1092557960&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3081141973,1430264269&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=828325034,2219862162&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=4233373174,3815522421&fm=27&gp=0.jpg" alt="">
+        </div>
+    </div>
+    <div id="btn">
+            <button class="pre"><</button>
+            <button class="next">></button>
+    </div>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>
+        $(function(){
+            let index = 0;
+            let $pre = $('#btn .pre')
+            let $next = $('#btn .next')
+            let $imgs = $('#images img')
+            let $window = $('#window')
+            let timer
+
+            let $copyImages = $('#images').clone().attr('id','copyImages')
+            $window.append($copyImages)
+            let $copyImgs = $copyImages.children()
+
+            init()
+
+            $window
+                .on('mouseenter',clearTimer)
+                .on('mouseleave',setTimer)
+            $('#btn')  
+                .on('mouseenter',clearTimer)
+                .on('mouseleave',setTimer)  
+
+            $next.on('click',function(){
+                index = $('.current').eq(0).index()
+                setLeave('leave')
+                setCurrent(index+1)
+                setEnter(getIndex(index+2))
+                setPreEnter(index)
+            })
+
+            $pre.on('click',function(){
+                index = $('.current').eq(0).index()
+                setLeave('preLeave')
+                setPreCurrent()
+                setPreEnter(getPreIndex(index-2))
+                setEnter(index)
+            }) 
+
+            function setTimer(){
+                timer = setInterval(function(){
+                    $next.trigger('click')
+                },5000)
+            }
+
+            function clearTimer(){
+                clearInterval(timer)
+            }
+
+            function setPreCurrent(){
+                $('.preEnter').addClass('current').removeClass('preEnter')
+            }
+
+            function setLeave(clas){
+                $('.current')
+                    .addClass(clas)
+                    .removeClass('current')
+                    .one('transitionend',removeLeave)
+            }
+
+            function init(){
+                setCurrent(index)
+                setEnter(index+1)
+                setPreEnter(getPreIndex(index-1))
+                setTimer()
+            }     
+
+            function setCurrent(index){
+                index = getIndex(index)
+                $imgs[index].className = 'current'
+            }
+            function setEnter(index){
+                $imgs.eq(index).addClass('enter').siblings().removeClass('enter')
+            }
+            function removeLeave(){
+                this.className = ''
+            }
+
+            function setPreEnter(index){ 
+               $copyImgs.eq(index).addClass('preEnter').siblings().removeClass('preEnter')
+            }
+
+            function getIndex(index){
+                if(index>=$imgs.length){
+                    index = index%$imgs.length
+                }
+                return index
+            }    
+            function getPreIndex(index){
+                switch(index){
+                    case -1:
+                        index = $imgs.length-1;break
+                    case -2:
+                        index = $imgs.length-2;break
+                    default:
+                        break
+               }
+               return index
+            }
+
+        })
+    </script>
+
+</body>
+</html>
